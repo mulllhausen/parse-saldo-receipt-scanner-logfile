@@ -21,8 +21,12 @@ The `.log` file is unstructured data. This script parses it and extracts
 the data into a CSV file. [Install golang](https://go.dev/dl/) then run
 it like this:
 
-    go run parse_log.go
+    go run .
 
-if you want debugging:
+build:
+
+    go build -o parse-saldo-logfile.exe
+
+if you want debugging in vscode:
 
     go install github.com/go-delve/delve/cmd/dlv@latest

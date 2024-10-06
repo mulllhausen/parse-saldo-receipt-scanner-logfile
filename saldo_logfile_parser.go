@@ -31,13 +31,13 @@ type ReceiptLine struct {
 	TotalPrice   string
 }
 
-func main() {
-	receipts, err := processEntireLogFile("test-logfile1.log")
+func ConvertLogsToCsv(logfile string, csvFile string) {
+	receipts, err := processEntireLogFile(logfile)
 	if err != nil {
-		fmt.Println("Error reading log file:", err)
+		fmt.Printf("Error reading log file %s: %v\n", logfile, err)
 		return
 	}
-	writeCsv(receipts)
+	writeCsv(receipts, csvFile)
 }
 
 func processEntireLogFile(filename string) ([]Receipt, error) {
@@ -63,7 +63,7 @@ func processEntireLogFile(filename string) ([]Receipt, error) {
 			if currentRecord != "" {
 				receipt, err := parseReceipt(currentRecord)
 				if err != nil {
-					fmt.Println("Error parsing line %s:", lineNumber, err)
+					fmt.Printf("Error parsing line %d: %v\n", lineNumber, err)
 				}
 				if receipt.IsReceipt {
 					receipts = append(receipts, receipt)
@@ -86,7 +86,7 @@ func processEntireLogFile(filename string) ([]Receipt, error) {
 	if currentRecord != "" {
 		receipt, err := parseReceipt(currentRecord)
 		if err != nil {
-			fmt.Println("Error parsing line %s:", lineNumber, err)
+			fmt.Printf("Error parsing line %d: %v\n", lineNumber, err)
 		}
 		if receipt.IsReceipt {
 			receipts = append(receipts, receipt)
@@ -308,8 +308,8 @@ func checkIsReconciled(receipt Receipt) bool {
 	return runningTotal == parsedTotal
 }
 
-func writeCsv(receipts []Receipt) {
-	file, err := os.Create("receipts.csv")
+func writeCsv(receipts []Receipt, filename string) {
+	file, err := os.Create(filename)
 	if err != nil {
 		fmt.Println("Error creating file:", err)
 		return
