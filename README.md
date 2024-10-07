@@ -2,13 +2,13 @@
 Parse the logfile of the Saldo Receipt Scanner Android app
 
 The Saldo Receipt Scanner app is the best I have found for parsing
-receipt text, including the lines. However their export feature does
+receipt text, including the lines. However their CSV export feature does
 not include the receipt lines - only the header info like total, date,
-merchant, etc.
+merchant, etc. The receipt lines are added to the logfile when they are
+processed by the Saldo App, so this project parses the logfile to output 
+a CSV containing the receipt lines.
 
-This repo is a workaround for getting the receipt lines.
-
-To get the logfile (last time I checked):
+To get the logfile out of the app is not obvious:
 - go to the home page
 - press the `... more` menu (bottom right)
 - press `Help Center`
@@ -21,11 +21,17 @@ The `.log` file is unstructured data. This script parses it and extracts
 the data into a CSV file. [Install golang](https://go.dev/dl/) then run
 it like this:
 
-    go run .
+    go run . processing/test-logfile.log
+
+it will output into the same `processing` dir.
 
 build:
 
     go build -o parse-saldo-logfile.exe
+
+run tests:
+
+    go test ./tests/
 
 if you want debugging in vscode:
 
