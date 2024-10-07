@@ -132,9 +132,9 @@ func parseReceipt(logLine string) (Receipt, error) {
 	// - we cannot immediately split by "," because we want the whole of "items" to be 1
 	// keyvalue pair since this is a nested list
 
-	logLine, err := parseCleanProps(logLine)
-	if err != nil {
-		return Receipt{}, err
+	logLine = parseCleanProps(logLine)
+	if logLine == "" {
+		return Receipt{}, nil
 	}
 
 	receipt := Receipt{} // init
@@ -147,9 +147,9 @@ func parseReceipt(logLine string) (Receipt, error) {
 			continue
 		}
 		isLastItem := i == (numMismatchingPairs - 1)
-		previousWords := strings.Split(mismatchingPairs[i-1], " ")
+		previousWords := strings.Split(mismatchingPairs[i-1], ",")
 		previousLastWord := previousWords[len(previousWords)-1]
-		currentWords := strings.Split(mismatchingPair, " ")
+		currentWords := strings.Split(mismatchingPair, ",")
 
 		// chop off the last current word
 		if !isLastItem {
@@ -157,7 +157,8 @@ func parseReceipt(logLine string) (Receipt, error) {
 		}
 
 		key := strings.TrimSpace(previousLastWord)
-		value := strings.TrimRight(strings.TrimSpace(strings.Join(currentWords, " ")), ",")
+		value := strings.Join(currentWords, ",")
+		value = strings.TrimRight(value, ",\n\r ")
 
 		switch key {
 		case "date":
@@ -190,18 +191,18 @@ func parseReceipt(logLine string) (Receipt, error) {
 	return receipt, nil
 }
 
-func parseCleanProps(logLine string) (string, error) {
+func parseCleanProps(logLine string) string {
 	logLine = strings.ReplaceAll(logLine, "\r", "")
 	logLine = strings.ReplaceAll(logLine, "\n", "")
 	re := regexp.MustCompile(`props:\s*{`)
 	matches := re.FindStringIndex(logLine)
 	if matches == nil {
-		return "", fmt.Errorf("no props found in line")
+		return ""
 	}
 	propsStart := matches[1]
 	props := logLine[propsStart:]
 	props = strings.TrimRight(props, "}")
-	return props, nil
+	return props
 }
 
 func parseUnixtime(unixtime string) string {

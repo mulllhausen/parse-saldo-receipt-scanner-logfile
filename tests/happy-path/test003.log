@@ -1,0 +1,8 @@
+copied from the saldo receipt scanner app logfile then manually changed so that props are
+in a different order and have no spaces between key-value pairs
+
+05-10-2024 03:22:58: props: {first_event=true,total=$29.90,date=1711627200000,currency=$,merchant=Coles
+Supermarkets Australia Pty Ltd coles,
+category=,description=,receipt=true,items=1_Item name: WELLNESS ROAD LINSEE 500GRAM 3 @ $3.30 EACH,
+quantity: 0.0,pricePerUnit: ,totalPrice: 9902_Item name: % TULIPS 1EACH,quantity: 0.0,pricePerUnit: ,
+totalPrice: 2000}

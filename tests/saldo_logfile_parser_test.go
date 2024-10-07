@@ -11,6 +11,10 @@ import (
 func TestAllHappyPathFiles(t *testing.T) {
 	// arrange
 	testDirectory := "happy-path"
+
+	singleTestFile := "" // empty string = test all files
+	//singleTestFile := "test003.log" // for debugging
+
 	err := filepath.Walk(testDirectory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -18,19 +22,25 @@ func TestAllHappyPathFiles(t *testing.T) {
 		if filepath.Ext(path) != ".log" {
 			return nil
 		}
-		baseFilename := strings.TrimSuffix(filepath.Base(path), ".log")
+		filename := filepath.Base(path)
+		baseFilename := strings.TrimSuffix(filename, ".log")
+
+		if singleTestFile != "" && filename != singleTestFile {
+			return nil
+		}
+
 		expectedCSVFilename := filepath.Join(testDirectory, baseFilename+".csv")
-		expectedCsvDataBytes, err := os.ReadFile(expectedCSVFilename)
+		expectedCSVDataBytes, err := os.ReadFile(expectedCSVFilename)
 		if err != nil {
 			t.Fatalf("Error reading expected CSV file %s: %v", expectedCSVFilename, err)
 		}
-		expectedCsvData := strings.ReplaceAll(string(expectedCsvDataBytes), "\r", "")
+		expectedCSVData := strings.ReplaceAll(string(expectedCSVDataBytes), "\r", "")
 
 		// act
 		actualCSVData := saldoProcessor.ConvertLogsToCSV(path, "")
 
 		// assert
-		if strings.TrimRight(actualCSVData, "\n") != strings.TrimRight(expectedCsvData, "\n") {
+		if strings.TrimRight(actualCSVData, "\n") != strings.TrimRight(expectedCSVData, "\n") {
 			t.Errorf("CSV content mismatch for %v: expected vs generated", baseFilename)
 		}
 
