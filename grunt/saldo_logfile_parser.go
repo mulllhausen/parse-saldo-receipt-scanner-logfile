@@ -20,6 +20,8 @@ type Receipt struct {
 	Description  string
 	IsReceipt    bool
 	IsFirstEvent bool
+	Title        string
+	Name         string
 	IsReconciled bool
 	ReceiptLines []ReceiptLine
 }
@@ -159,6 +161,9 @@ func parseReceipt(logLine string) (Receipt, error) {
 		key := strings.TrimSpace(previousLastWord)
 		value := strings.Join(currentWords, ",")
 		value = strings.TrimRight(value, ",\n\r ")
+		if value == "in progress" {
+			return Receipt{}, nil
+		}
 
 		switch key {
 		case "date":
@@ -183,6 +188,14 @@ func parseReceipt(logLine string) (Receipt, error) {
 			receipt.ReceiptLines = append(receipt.ReceiptLines, receiptLines...)
 		case "first_event":
 			receipt.IsFirstEvent = value == "true"
+		case "title":
+			receipt.Title = value
+		case "name":
+			receipt.Name = value
+		case "parent_screen":
+		case "place":
+		case "type":
+			continue
 		default:
 			return Receipt{}, fmt.Errorf("unknown key: %s", key)
 		}
@@ -315,18 +328,30 @@ func checkIsReconciled(receipt Receipt) bool {
 }
 
 func toCSV(receipts []Receipt) string {
-	csv := "LogLine,Date,Total,Currency,Merchant,Category,Description,IsReconciled," +
-		"ItemName,Quantity,PricePerUnit,TotalPrice\n"
+	var builder strings.Builder
+	builder.WriteString("LogLine,Date,Title,Name,Total,Currency,Merchant,Category," +
+		"Description,IsReconciled,ItemName,Quantity,PricePerUnit,TotalPrice\n")
 
 	for _, receipt := range receipts {
 		for _, line := range receipt.ReceiptLines {
-			csv += fmt.Sprintf("%d,%s,%s,%s,%s,%s,%s,%t,%s,%s,%s,%s\n",
-				receipt.LineNumber, receipt.Date, receipt.Total, receipt.Currency,
-				receipt.Merchant, receipt.Category, receipt.Description, receipt.IsReconciled,
-				line.Name, line.Quantity, line.PricePerUnit, line.TotalPrice)
+			builder.WriteString(fmt.Sprintf("%d,%s,%s,%s,%s,%s,%s,%s,%s,%t,%s,%s,%s,%s\n",
+				receipt.LineNumber,
+				receipt.Date,
+				receipt.Title,
+				receipt.Name,
+				receipt.Total,
+				receipt.Currency,
+				receipt.Merchant,
+				receipt.Category,
+				receipt.Description,
+				receipt.IsReconciled,
+				line.Name,
+				line.Quantity,
+				line.PricePerUnit,
+				line.TotalPrice))
 		}
 	}
-	return csv
+	return builder.String()
 }
 
 func writeToFile(data string, filename string) {

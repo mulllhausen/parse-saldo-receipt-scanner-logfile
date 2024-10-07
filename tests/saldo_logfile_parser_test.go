@@ -10,7 +10,7 @@ import (
 
 func TestAllHappyPathFiles(t *testing.T) {
 	// arrange
-	testDirectory := "happy-path"
+	testDirectory := "."
 
 	singleTestFile := "" // empty string = test all files
 	//singleTestFile := "test003.log" // for debugging
