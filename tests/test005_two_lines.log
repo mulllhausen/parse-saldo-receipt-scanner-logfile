@@ -1,0 +1,6 @@
+2 lines copied from the saldo receipt scanner app logfile
+
+05-10-2024 03:22:58: AnalyticsCore: sendEvent. event: expenses_list_expense_clicked, props: {date=1711627200000, total=$29.90, currency=$, merchant=Coles Supermarkets Australia Pty Ltd coles, category=, description=, receipt=true, items=1_Item name: WELLNESS ROAD LINSEE 500GRAM
+3 @ $3.30 EACH, quantity: 0.0, pricePerUnit: , totalPrice: 9902_Item name: % TULIPS 1EACH, quantity: 0.0, pricePerUnit: , totalPrice: 2000, first_event=true}
+05-10-2024 03:29:01: AnalyticsCore: sendEvent. event: expenses_list_expense_clicked, props: {date=1711281600000, total=$8.49, currency=$, merchant=Adams Apple Westfield West Lakes, category=, description=, receipt=true, items=1_Item name: KANGAROO ISLAND FREE
+RANGE EGGS, quantity: 0.0, pricePerUnit: , totalPrice: 849, first_event=false}

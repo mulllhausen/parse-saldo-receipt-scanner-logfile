@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"os"
 	saldoProcessor "parse-saldo/grunt"
 	"path/filepath"
@@ -8,12 +9,12 @@ import (
 	"testing"
 )
 
-func TestAllHappyPathFiles(t *testing.T) {
+func TestAllFiles(t *testing.T) {
 	// arrange
 	testDirectory := "."
 
-	singleTestFile := "" // empty string = test all files
-	//singleTestFile := "test003.log" // for debugging
+	singleTestNumber := 0 // 0 = test all files
+	singleTestFilePrefix := fmt.Sprintf("test%03d", singleTestNumber)
 
 	err := filepath.Walk(testDirectory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -25,7 +26,8 @@ func TestAllHappyPathFiles(t *testing.T) {
 		filename := filepath.Base(path)
 		baseFilename := strings.TrimSuffix(filename, ".log")
 
-		if singleTestFile != "" && filename != singleTestFile {
+		if singleTestNumber != 0 &&
+			!strings.HasPrefix(filename, singleTestFilePrefix) {
 			return nil
 		}
 

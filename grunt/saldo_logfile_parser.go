@@ -56,31 +56,34 @@ func processEntireLogFile(filename string) ([]Receipt, error) {
 
 	var receipts []Receipt
 	scanner := bufio.NewScanner(file)
-	var currentRecord string
+	var currentRecord strings.Builder
 
 	// match a date at the start of a line
 	dateRegex := regexp.MustCompile(`^\d{2}-\d{2}-\d{4}`)
 
-	lineNumber := 1
+	lineNumber := 1      // keep track of the logfile line
+	datedLineNumber := 1 // use in the output CSV
 	for scanner.Scan() {
 		line := scanner.Text()
 
 		if dateRegex.MatchString(line) {
 			// process old record before starting a new one
-			if currentRecord != "" {
-				receipt, err := parseReceipt(currentRecord)
+			if currentRecord.String() != "" {
+				receipt, err := parseReceipt(currentRecord.String())
 				if err != nil {
 					fmt.Printf("Error parsing line %d: %v\n", lineNumber, err)
 				}
+				receipt.LineNumber = datedLineNumber
 				if receipt.IsReceipt {
 					receipts = append(receipts, receipt)
 				}
-				receipt.LineNumber = lineNumber
 			}
 			// start a new record
-			currentRecord = line
+			currentRecord.Reset()
+			currentRecord.WriteString(line)
+			datedLineNumber = lineNumber
 		} else {
-			currentRecord += " " + line
+			currentRecord.WriteString(" " + line)
 		}
 		lineNumber++
 	}
@@ -90,15 +93,15 @@ func processEntireLogFile(filename string) ([]Receipt, error) {
 	}
 
 	// process the final record
-	if currentRecord != "" {
-		receipt, err := parseReceipt(currentRecord)
+	if currentRecord.String() != "" {
+		receipt, err := parseReceipt(currentRecord.String())
 		if err != nil {
 			fmt.Printf("Error parsing line %d: %v\n", lineNumber, err)
 		}
+		receipt.LineNumber = datedLineNumber
 		if receipt.IsReceipt {
 			receipts = append(receipts, receipt)
 		}
-		receipt.LineNumber = lineNumber
 	}
 	return receipts, nil
 }
