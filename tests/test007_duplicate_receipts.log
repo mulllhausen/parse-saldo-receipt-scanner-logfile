@@ -1,0 +1,11 @@
+copied from the saldo receipt scanner app logfile. duplicates of the same receipt but with slightly different details.
+when de-duplicating we will only keep the last receipt.
+
+05-10-2024 03:21:42: AnalyticsCore: sendEvent. event: expense_updated, props: {date=1711627200000, total=29.9, currency=AUD, merchant=Coles Supermarkets Australia Pty Ltd coles, category=, description=, receipt=true, place=onboarding, items=1_Item name: WELLNESS ROAD LINSEE 500GRAM
+3 @ $3.30 EACH, quantity: 0.0, pricePerUnit: , totalPrice: 9902_Item name: % TULIPS 1EACH, quantity: 0.0, pricePerUnit: , totalPrice: 2000, first_event=true}
+05-10-2024 03:22:58: AnalyticsCore: sendEvent. event: expenses_list_expense_clicked, props: {date=1711627200000, total=$29.90, currency=$, merchant=Coles Supermarkets Australia Pty Ltd coles, category=, description=, receipt=true, items=1_Item name: WELLNESS ROAD LINSEE 500GRAM
+3 @ $3.30 EACH, quantity: 0.0, pricePerUnit: , totalPrice: 9902_Item name: % TULIPS 1EACH, quantity: 0.0, pricePerUnit: , totalPrice: 2000, first_event=true}
+05-10-2024 03:23:05: AnalyticsCore: sendEvent. event: expenses_list_expense_clicked, props: {date=1711627200000, total=$29.90, currency=$, merchant=Coles Supermarkets Australia Pty Ltd coles, category=, description=, receipt=true, items=1_Item name: WELLNESS ROAD LINSEE 500GRAM
+3 @ $3.30 EACH, quantity: 0.0, pricePerUnit: , totalPrice: 9902_Item name: % TULIPS 1EACH, quantity: 0.0, pricePerUnit: , totalPrice: 2000, first_event=false}
+05-10-2024 03:23:17: AnalyticsCore: sendEvent. event: expense_updated, props: {date=1711627200000, total=29.9, currency=AUD, merchant=Coles Supermarkets Australia Pty Ltd coles, category=Groceries, description=, receipt=true, place=list, items=1_Item name: WELLNESS ROAD LINSEE 500GRAM
+3 @ $3.30 EACH, quantity: 0.0, pricePerUnit: , totalPrice: 9902_Item name: % TULIPS 1EACH, quantity: 0.0, pricePerUnit: , totalPrice: 2000, first_event=false}

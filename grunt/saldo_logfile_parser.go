@@ -33,16 +33,26 @@ type ReceiptLine struct {
 	TotalPrice   string
 }
 
+type ConvertLogsToCSVArgs struct {
+	Logfile          string
+	CSVFile          string
+	OutputToFile     bool
+	RemoveDuplicates bool
+}
+
 // only writes to CSV file when csvFile is supplied
-func ConvertLogsToCSV(logfile string, csvFile string) string {
-	receipts, err := processEntireLogFile(logfile)
+func ConvertLogsToCSV(args ConvertLogsToCSVArgs) string {
+	receipts, err := processEntireLogFile(args.Logfile)
 	if err != nil {
-		fmt.Printf("Error reading log file %s: %v\n", logfile, err)
+		fmt.Printf("Error reading log file %s: %v\n", args.Logfile, err)
 		return ""
 	}
+	if args.RemoveDuplicates {
+		receipts = removeDuplicates(receipts)
+	}
 	csv := toCSV(receipts)
-	if csvFile != "" {
-		writeToFile(csv, csvFile)
+	if args.OutputToFile {
+		writeToFile(csv, args.CSVFile)
 	}
 	return csv
 }
@@ -172,9 +182,7 @@ func parseReceipt(logLine string) (Receipt, error) {
 		case "date":
 			receipt.Date = parseUnixtime(value)
 		case "total":
-			value = strings.ReplaceAll(value, "$", "")
-			value = strings.ReplaceAll(value, ",", "") // thousands separator
-			receipt.Total = value
+			receipt.Total = cleanTotal(value)
 		case "currency":
 			receipt.Currency = value
 		case "merchant":
@@ -257,6 +265,26 @@ func parseUnixtime(unixtime string) string {
 	t := time.Unix(unixtimeInt, 0)
 	formattedDate := t.Format("2006-01-02") // YYYY-MM-DD
 	return formattedDate
+}
+
+func cleanTotal(total string) string {
+	total = strings.ReplaceAll(total, "$", "")
+	total = strings.ReplaceAll(total, ",", "") // thousands separator
+
+	parts := strings.Split(total, ".")
+	if len(parts) == 1 {
+		// there is no decimal point
+		total += ".00"
+	} else if len(parts[1]) == 0 {
+		// there is a decimal point but no digits after it
+		total += "00"
+	} else if len(parts[1]) == 1 {
+		// there is only 1 digit after the decimal point
+		parts[1] += "0"
+		total = strings.Join(parts, ".")
+	}
+
+	return total
 }
 
 func parseReceiptLines(items string) ([]ReceiptLine, error) {
@@ -352,6 +380,31 @@ func checkIsReconciled(receipt Receipt) bool {
 	}
 	parsedTotal, _ := strconv.ParseFloat(receipt.Total, 64)
 	return runningTotal == parsedTotal
+}
+
+func removeDuplicates(receipts []Receipt) []Receipt {
+	// first create a hashmap
+	latestReceiptByUniqueKey := make(map[string]Receipt)
+	for _, receipt := range receipts {
+		key := receipt.Date + receipt.Total + receipt.Merchant
+
+		existingReceipt, receiptExists := latestReceiptByUniqueKey[key]
+		if receiptExists {
+			if receipt.LineNumber > existingReceipt.LineNumber {
+				latestReceiptByUniqueKey[key] = receipt
+			}
+		} else {
+			latestReceiptByUniqueKey[key] = receipt
+		}
+	}
+
+	// then convert the hashmap back to a list of `Receipt`s
+	var keepReceipts []Receipt
+	for _, receipt := range latestReceiptByUniqueKey {
+		keepReceipts = append(keepReceipts, receipt)
+	}
+
+	return keepReceipts
 }
 
 func toCSV(receipts []Receipt) string {

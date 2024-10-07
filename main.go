@@ -13,5 +13,11 @@ func main() {
 		baseLogfileName = os.Args[1]
 	}
 	fileName := strings.TrimSuffix(baseLogfileName, filepath.Ext(baseLogfileName))
-	saldoProcessor.ConvertLogsToCSV(fileName+".log", fileName+".csv")
+	args := saldoProcessor.ConvertLogsToCSVArgs{
+		Logfile:          fileName + ".log",
+		OutputToFile:     true,
+		CSVFile:          fileName + ".csv",
+		RemoveDuplicates: true,
+	}
+	saldoProcessor.ConvertLogsToCSV(args)
 }

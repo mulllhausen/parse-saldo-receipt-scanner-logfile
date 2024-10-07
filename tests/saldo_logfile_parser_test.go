@@ -37,9 +37,14 @@ func TestAllFiles(t *testing.T) {
 			t.Fatalf("Error reading expected CSV file %s: %v", expectedCSVFilename, err)
 		}
 		expectedCSVData := strings.ReplaceAll(string(expectedCSVDataBytes), "\r", "")
+		args := saldoProcessor.ConvertLogsToCSVArgs{
+			Logfile:          path,
+			OutputToFile:     false,
+			RemoveDuplicates: true,
+		}
 
 		// act
-		actualCSVData := saldoProcessor.ConvertLogsToCSV(path, "")
+		actualCSVData := saldoProcessor.ConvertLogsToCSV(args)
 
 		// assert
 		if strings.TrimRight(actualCSVData, "\n") != strings.TrimRight(expectedCSVData, "\n") {
