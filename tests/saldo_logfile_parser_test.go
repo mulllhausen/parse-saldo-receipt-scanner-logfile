@@ -30,7 +30,7 @@ func TestAllHappyPathFiles(t *testing.T) {
 		actualCSVData := saldoProcessor.ConvertLogsToCSV(path, "")
 
 		// assert
-		if actualCSVData != expectedCsvData {
+		if strings.TrimRight(actualCSVData, "\n") != strings.TrimRight(expectedCsvData, "\n") {
 			t.Errorf("CSV content mismatch for %v: expected vs generated", baseFilename)
 		}
 

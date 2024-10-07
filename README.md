@@ -18,12 +18,12 @@ To get the logfile out of the app is not obvious:
 - inside there is a `.log` file with all your data
 
 The `.log` file is unstructured data. This script parses it and extracts
-the data into a CSV file. [Install golang](https://go.dev/dl/) then run
-it like this:
+the data into a CSV file. [Install golang](https://go.dev/dl/) then either
+`run and debug` it in vscode or from the CLI like this:
 
     go run . processing/test-logfile.log
 
-it will output into the same `processing` dir.
+it will output into the same directory as the input.
 
 build:
 
