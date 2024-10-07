@@ -194,7 +194,29 @@ func parseReceipt(logLine string) (Receipt, error) {
 			receipt.Name = value
 		case "parent_screen":
 		case "place":
+		case "price": // pretty sure this happens when a receipt line is updated
+		case "quantity": // same as above
+		case "rs_subscription":
+		case "export_format":
+		case "success":
+		case "app_install_time":
+		case "plan":
+		case "method":
+		case "sort_by":
+		case "product":
+		case "provider":
+		case "tags":
+		case "user_purpose":
+		case "purchase_id":
+		case "onboarding_version":
+		case "referrer_click_time":
 		case "type":
+		case "offer":
+		case "receipt_attached":
+		case "utm_source":
+		case "utm_medium":
+		case "receipts_count":
+			// ignore for now. maybe support in future
 			continue
 		default:
 			return Receipt{}, fmt.Errorf("unknown key: %s", key)
