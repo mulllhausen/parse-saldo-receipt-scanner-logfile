@@ -1,4 +1,4 @@
-package main
+package saldoProcessor
 
 import (
 	"bufio"
@@ -31,13 +31,18 @@ type ReceiptLine struct {
 	TotalPrice   string
 }
 
-func ConvertLogsToCsv(logfile string, csvFile string) {
+// only writes to CSV file when csvFile is supplied
+func ConvertLogsToCSV(logfile string, csvFile string) string {
 	receipts, err := processEntireLogFile(logfile)
 	if err != nil {
 		fmt.Printf("Error reading log file %s: %v\n", logfile, err)
-		return
+		return ""
 	}
-	writeCsv(receipts, csvFile)
+	csv := toCSV(receipts)
+	if csvFile != "" {
+		writeToFile(csv, csvFile)
+	}
+	return csv
 }
 
 func processEntireLogFile(filename string) ([]Receipt, error) {
@@ -308,7 +313,22 @@ func checkIsReconciled(receipt Receipt) bool {
 	return runningTotal == parsedTotal
 }
 
-func writeCsv(receipts []Receipt, filename string) {
+func toCSV(receipts []Receipt) string {
+	csv := "LogLine,Date,Total,Currency,Merchant,Category,Description,IsReconciled," +
+		"ItemName,Quantity,PricePerUnit,TotalPrice\n"
+
+	for _, receipt := range receipts {
+		for _, line := range receipt.ReceiptLines {
+			csv += fmt.Sprintf("%d,%s,%s,%s,%s,%s,%s,%t,%s,%s,%s,%s\n",
+				receipt.LineNumber, receipt.Date, receipt.Total, receipt.Currency,
+				receipt.Merchant, receipt.Category, receipt.Description, receipt.IsReconciled,
+				line.Name, line.Quantity, line.PricePerUnit, line.TotalPrice)
+		}
+	}
+	return csv
+}
+
+func writeToFile(data string, filename string) {
 	file, err := os.Create(filename)
 	if err != nil {
 		fmt.Println("Error creating file:", err)
@@ -319,17 +339,9 @@ func writeCsv(receipts []Receipt, filename string) {
 	writer := bufio.NewWriter(file)
 	defer writer.Flush()
 
-	// write header
-	writer.WriteString(
-		"LogLine,Date,Total,Currency,Merchant,Category,Description,IsReconciled," +
-			"ItemName,Quantity,PricePerUnit,TotalPrice\n")
-
-	for _, receipt := range receipts {
-		for _, line := range receipt.ReceiptLines {
-			writer.WriteString(fmt.Sprintf("%d,%s,%s,%s,%s,%s,%s,%t,%s,%s,%s,%s\n",
-				receipt.LineNumber, receipt.Date, receipt.Total, receipt.Currency,
-				receipt.Merchant, receipt.Category, receipt.Description, receipt.IsReconciled,
-				line.Name, line.Quantity, line.PricePerUnit, line.TotalPrice))
-		}
+	// loop through all lines of data and write to file
+	lines := strings.Split(data, "\n")
+	for _, line := range lines {
+		writer.WriteString(line + "\n")
 	}
 }
