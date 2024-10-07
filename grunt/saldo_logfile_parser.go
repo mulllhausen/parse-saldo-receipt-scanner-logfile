@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -34,10 +35,12 @@ type ReceiptLine struct {
 }
 
 type ConvertLogsToCSVArgs struct {
-	Logfile          string
-	CSVFile          string
-	OutputToFile     bool
-	RemoveDuplicates bool
+	Logfile           string
+	CSVFile           string
+	OutputToFile      bool
+	RemoveDuplicates  bool
+	SortByDate        bool // go does not have enums :(
+	SortByLogfileLine bool
 }
 
 // only writes to CSV file when csvFile is supplied
@@ -50,6 +53,7 @@ func ConvertLogsToCSV(args ConvertLogsToCSVArgs) string {
 	if args.RemoveDuplicates {
 		receipts = removeDuplicates(receipts)
 	}
+	receipts = sortReceipts(receipts, args)
 	csv := toCSV(receipts)
 	if args.OutputToFile {
 		writeToFile(csv, args.CSVFile)
@@ -405,6 +409,21 @@ func removeDuplicates(receipts []Receipt) []Receipt {
 	}
 
 	return keepReceipts
+}
+
+func sortReceipts(receipts []Receipt, sortArgs ConvertLogsToCSVArgs) []Receipt {
+	if sortArgs.SortByDate {
+		sort.Slice(receipts, func(i, j int) bool {
+			date1, _ := time.Parse("2006-01-02", receipts[i].Date)
+			date2, _ := time.Parse("2006-01-02", receipts[j].Date)
+			return date1.Before(date2) // ascending
+		})
+	} else if sortArgs.SortByLogfileLine {
+		sort.Slice(receipts, func(i, j int) bool {
+			return receipts[i].LineNumber < receipts[j].LineNumber
+		})
+	}
+	return receipts
 }
 
 func toCSV(receipts []Receipt) string {

@@ -18,6 +18,7 @@ func main() {
 		OutputToFile:     true,
 		CSVFile:          fileName + ".csv",
 		RemoveDuplicates: true,
+		SortByDate:       true,
 	}
 	saldoProcessor.ConvertLogsToCSV(args)
 }
