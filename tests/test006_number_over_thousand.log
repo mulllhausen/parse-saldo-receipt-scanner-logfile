@@ -1,0 +1,4 @@
+copied from the saldo receipt scanner app logfile. was failing due to a number containing a thousands separator ",".
+
+05-10-2024 04:01:10: AnalyticsCore: sendEvent. event: expenses_list_expense_clicked, props: {date=1709985600000, total=$7,322.95, currency=$, merchant=Coles Supermarkets Australia Pty Ltd coles, category=, description=, receipt=true, items=1_Item name: HONEY BELLE PEARS PERKG
+0.266 kg NET [ $3.90/kg, quantity: 0.0, pricePerUnit: , totalPrice: 104, first_event=false}

@@ -172,7 +172,9 @@ func parseReceipt(logLine string) (Receipt, error) {
 		case "date":
 			receipt.Date = parseUnixtime(value)
 		case "total":
-			receipt.Total = strings.ReplaceAll(value, "$", "")
+			value = strings.ReplaceAll(value, "$", "")
+			value = strings.ReplaceAll(value, ",", "") // thousands separator
+			receipt.Total = value
 		case "currency":
 			receipt.Currency = value
 		case "merchant":
