@@ -1,0 +1,9 @@
+copied from the saldo receipt scanner app logfile. a receipt with a comma in
+the item list ("iced coffee Small, Regular").
+
+09-10-2024 11:40:53: AnalyticsCore: sendEvent. event:, props: {date=1708214400000, total=86.85, currency=USD, merchant=Le Cafe Flo, category=food and entertainment, description=, receipt=true, place=list, items=1_Item name: Veggie Croque Mademoiselle, quantity: 0.0, pricePerUnit: , totalPrice: 20502_Item name: iced coffee
+Small, Regular, quantity: 0.0, pricePerUnit: , totalPrice: 6103_Item name: Café au lait
+Regular, quantity: 0.0, pricePerUnit: , totalPrice: 5004_Item name: Bénédicte Royal × 2
+($23.90 each), quantity: 0.0, pricePerUnit: , totalPrice: 47805_Item name: Moccha
+Regular, Bonsoy ($0.80)
+Iced, quantity: 0.0, pricePerUnit: , totalPrice: 540, first_event=false}

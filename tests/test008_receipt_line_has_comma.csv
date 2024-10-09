@@ -1,0 +1,6 @@
+LogLine,Date,Title,Name,Total,Currency,Merchant,Category,Description,IsReconciled,ItemName,Quantity,PricePerUnit,TotalPrice
+4,2024-02-18,,,86.85,USD,Le Cafe Flo,food and entertainment,,false,Veggie Croque Mademoiselle,0.0,0.00,20.50
+4,2024-02-18,,,86.85,USD,Le Cafe Flo,food and entertainment,,false,"iced coffee Small, Regular",0.0,0.00,6.10
+4,2024-02-18,,,86.85,USD,Le Cafe Flo,food and entertainment,,false,Café au lait Regular,0.0,0.00,5.00
+4,2024-02-18,,,86.85,USD,Le Cafe Flo,food and entertainment,,false,Bénédicte Royal × 2 ($23.90 each),0.0,0.00,47.80
+4,2024-02-18,,,86.85,USD,Le Cafe Flo,food and entertainment,,false,"Moccha Regular, Bonsoy ($0.80) Iced",0.0,0.00,5.40

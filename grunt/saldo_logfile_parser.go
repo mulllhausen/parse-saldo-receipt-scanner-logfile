@@ -158,26 +158,11 @@ func parseReceipt(logLine string) (Receipt, error) {
 
 	receipt := Receipt{} // init
 
-	// note: this is necessary because golang does not support regex lookaheads
-	mismatchingPairs := strings.Split(logLine, "=")
-	numMismatchingPairs := len(mismatchingPairs)
-	for i, mismatchingPair := range mismatchingPairs {
-		if i == 0 {
-			continue
-		}
-		isLastItem := i == (numMismatchingPairs - 1)
-		previousWords := strings.Split(mismatchingPairs[i-1], ",")
-		previousLastWord := previousWords[len(previousWords)-1]
-		currentWords := strings.Split(mismatchingPair, ",")
+	assigner := "="
+	divider := ","
+	matchingPairs := splitKeyValuePairs(logLine, assigner, divider)
+	for key, value := range matchingPairs {
 
-		// chop off the last current word
-		if !isLastItem {
-			currentWords = currentWords[:len(currentWords)-1]
-		}
-
-		key := strings.TrimSpace(previousLastWord)
-		value := strings.Join(currentWords, ",")
-		value = strings.TrimRight(value, ",\n\r ")
 		if value == "in progress" {
 			return Receipt{}, nil
 		}
@@ -257,6 +242,39 @@ func parseCleanProps(logLine string) string {
 	return props
 }
 
+func splitKeyValuePairs(
+	logLine string, assigner string, divider string,
+) map[string]string {
+
+	// note: this convoluted function is necessary because golang does not
+	//support regex lookaheads
+
+	keyValuePairs := make(map[string]string)
+	mismatchingPairs := strings.Split(logLine, assigner)
+	numMismatchingPairs := len(mismatchingPairs)
+	for i, mismatchingPair := range mismatchingPairs {
+		if i == 0 {
+			continue
+		}
+		isLastItem := i == (numMismatchingPairs - 1)
+		previousWords := strings.Split(mismatchingPairs[i-1], divider)
+		previousLastWord := previousWords[len(previousWords)-1]
+		currentWords := strings.Split(mismatchingPair, divider)
+
+		// chop off the last current word
+		if !isLastItem {
+			currentWords = currentWords[:len(currentWords)-1]
+		}
+
+		key := strings.TrimSpace(previousLastWord)
+		value := strings.Join(currentWords, divider)
+		value = strings.TrimRight(value, divider+"\n\r ")
+		value = strings.TrimSpace(value)
+		keyValuePairs[key] = value
+	}
+	return keyValuePairs
+}
+
 func parseUnixtime(unixtime string) string {
 	// chop off the last 3 digits
 	unixtime = unixtime[:len(unixtime)-3]
@@ -326,11 +344,10 @@ func parseReceiptLines(items string) ([]ReceiptLine, error) {
 
 		receiptLine := ReceiptLine{}
 
-		keyValuePairs := strings.Split(receiptLineString, ",")
-		for _, keyValuePairString := range keyValuePairs {
-			keyValuePair := strings.Split(strings.TrimSpace(keyValuePairString), ":")
-			key := strings.TrimSpace(keyValuePair[0])
-			value := strings.TrimSpace(keyValuePair[1])
+		assigner := ":"
+		divider := ","
+		matchingPairs := splitKeyValuePairs(receiptLineString, assigner, divider)
+		for key, value := range matchingPairs {
 			switch key {
 			case "name":
 				receiptLine.Name = value
@@ -429,28 +446,37 @@ func sortReceipts(receipts []Receipt, sortArgs ConvertLogsToCSVArgs) []Receipt {
 func toCSV(receipts []Receipt) string {
 	var builder strings.Builder
 	builder.WriteString("LogLine,Date,Title,Name,Total,Currency,Merchant,Category," +
-		"Description,IsReconciled,ItemName,Quantity,PricePerUnit,TotalPrice\n")
+		"Description,IsReconciled,ItemName,Quantity,PricePerUnit,TotalPrice\n",
+	)
 
 	for _, receipt := range receipts {
 		for _, line := range receipt.ReceiptLines {
 			builder.WriteString(fmt.Sprintf("%d,%s,%s,%s,%s,%s,%s,%s,%s,%t,%s,%s,%s,%s\n",
 				receipt.LineNumber,
-				receipt.Date,
-				receipt.Title,
-				receipt.Name,
-				receipt.Total,
-				receipt.Currency,
-				receipt.Merchant,
-				receipt.Category,
-				receipt.Description,
+				quoteIfContainsCommas(receipt.Date),
+				quoteIfContainsCommas(receipt.Title),
+				quoteIfContainsCommas(receipt.Name),
+				quoteIfContainsCommas(receipt.Total),
+				quoteIfContainsCommas(receipt.Currency),
+				quoteIfContainsCommas(receipt.Merchant),
+				quoteIfContainsCommas(receipt.Category),
+				quoteIfContainsCommas(receipt.Description),
 				receipt.IsReconciled,
-				line.Name,
-				line.Quantity,
-				line.PricePerUnit,
-				line.TotalPrice))
+				quoteIfContainsCommas(line.Name),
+				quoteIfContainsCommas(line.Quantity),
+				quoteIfContainsCommas(line.PricePerUnit),
+				quoteIfContainsCommas(line.TotalPrice),
+			))
 		}
 	}
 	return builder.String()
+}
+
+func quoteIfContainsCommas(s string) string {
+	if strings.Contains(s, ",") {
+		return "\"" + s + "\""
+	}
+	return s
 }
 
 func writeToFile(data string, filename string) {
@@ -464,7 +490,6 @@ func writeToFile(data string, filename string) {
 	writer := bufio.NewWriter(file)
 	defer writer.Flush()
 
-	// loop through all lines of data and write to file
 	lines := strings.Split(data, "\n")
 	for _, line := range lines {
 		writer.WriteString(line + "\n")
